@@ -6,23 +6,16 @@ using MyWpfApp.Views;
 
 namespace MyWpfApp.ViewModels
 {
-    public class MainViewModel : ObservableObject
+    public partial class MainViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
 
         public MainViewModel(IDataService dataService)
         {
             _dataService = dataService;
-
-            // Initialize commands
-            OpenUserWindowCommand = new RelayCommand(OpenUserWindow);
-            OpenProductWindowCommand = new RelayCommand(OpenProductWindow);
         }
 
-        // Commands
-        public RelayCommand OpenUserWindowCommand { get; }
-        public RelayCommand OpenProductWindowCommand { get; }
-
+        [RelayCommand]
         private void OpenUserWindow()
         {
             try
@@ -38,6 +31,7 @@ namespace MyWpfApp.ViewModels
             }
         }
 
+        [RelayCommand]
         private void OpenProductWindow()
         {
             try

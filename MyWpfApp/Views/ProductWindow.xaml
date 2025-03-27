@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:MyWpfApp.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:ProductViewModel}"
         mc:Ignorable="d"
         Title="Product Management" Height="600" Width="800"
         WindowStartupLocation="CenterOwner">
@@ -45,6 +46,7 @@
                 <Button Content="Add New" Command="{Binding AddProductCommand}" Width="80" Margin="0,0,5,0"/>
                 <Button Content="Edit" Command="{Binding EditProductCommand}" Width="80" Margin="5,0"/>
                 <Button Content="Delete" Command="{Binding DeleteProductCommand}" Width="80" Margin="5,0,0,0"/>
+                <Button Content="Refresh" Command="{Binding LoadProductsCommand}" Width="80" Margin="10,0,0,0"/>
             </StackPanel>
         </Grid>
 
@@ -52,8 +54,8 @@
         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
 
         <!-- Right side - Edit Form -->
-        <Grid Grid.Column="2" Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <!-- If you have issues with the converter, you can try this alternative (uncomment if needed):
+        <Grid Grid.Column="2" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}">
+            <!-- Alternative style for visibility
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed" />
@@ -65,6 +67,7 @@
                 </Style>
             </Grid.Style>
             -->
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -87,7 +90,6 @@
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Save" 
                         Command="{Binding SaveProductCommand}" 
-                        CommandParameter="{Binding EditingProduct}" 
                         Width="80" 
                         Margin="0,0,5,0"/>
                 <Button Content="Cancel" 

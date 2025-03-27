@@ -2,60 +2,31 @@
 using CommunityToolkit.Mvvm.Input;
 using MyWpfApp.Models;
 using MyWpfApp.Services;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace MyWpfApp.ViewModels
 {
-    public class UserViewModel : ObservableObject
+    public partial class UserViewModel : ObservableObject
     {
         private readonly IDataService _dataService;
 
         // Properties
+        [ObservableProperty]
         private ObservableCollection<User> _users;
-        public ObservableCollection<User> Users
-        {
-            get => _users;
-            set => SetProperty(ref _users, value);
-        }
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(EditUserCommand), nameof(DeleteUserCommand))]
         private User _selectedUser;
-        public User SelectedUser
-        {
-            get => _selectedUser;
-            set
-            {
-                if (SetProperty(ref _selectedUser, value))
-                {
-                    // When selection changes, update the editing user
-                    EditingUser = value?.Clone();
-                    DeleteUserCommand.NotifyCanExecuteChanged();
-                    EditUserCommand.NotifyCanExecuteChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private User _editingUser;
-        public User EditingUser
-        {
-            get => _editingUser;
-            set => SetProperty(ref _editingUser, value);
-        }
 
+        [ObservableProperty]
         private bool _isEditing;
-        public bool IsEditing
-        {
-            get => _isEditing;
-            set => SetProperty(ref _isEditing, value);
-        }
-
-        // Commands
-        public RelayCommand LoadUsersCommand { get; }
-        public RelayCommand AddUserCommand { get; }
-        public RelayCommand<User> SaveUserCommand { get; }
-        public RelayCommand CancelEditCommand { get; }
-        public RelayCommand EditUserCommand { get; }
-        public RelayCommand DeleteUserCommand { get; }
 
         public UserViewModel(IDataService dataService)
         {
@@ -63,19 +34,12 @@ namespace MyWpfApp.ViewModels
             Users = new ObservableCollection<User>();
             EditingUser = new User();
 
-            // Initialize commands
-            LoadUsersCommand = new RelayCommand(async () => await LoadUsersAsync());
-            AddUserCommand = new RelayCommand(AddUser);
-            SaveUserCommand = new RelayCommand<User>(async (user) => await SaveUserAsync(user), (user) => user != null);
-            CancelEditCommand = new RelayCommand(CancelEdit);
-            EditUserCommand = new RelayCommand(EditUser, () => SelectedUser != null);
-            DeleteUserCommand = new RelayCommand(async () => await DeleteUserAsync(), () => SelectedUser != null);
-
             // Load users when the ViewModel is created
-            LoadUsersCommand.Execute(null);
+            _ = LoadUsers();
         }
 
-        private async Task LoadUsersAsync()
+        [RelayCommand]
+        private async Task LoadUsers()
         {
             try
             {
@@ -92,6 +56,7 @@ namespace MyWpfApp.ViewModels
             }
         }
 
+        [RelayCommand]
         private void AddUser()
         {
             EditingUser = new User();
@@ -99,6 +64,7 @@ namespace MyWpfApp.ViewModels
             SelectedUser = null;
         }
 
+        [RelayCommand(CanExecute = nameof(CanEditUser))]
         private void EditUser()
         {
             if (SelectedUser != null)
@@ -108,30 +74,36 @@ namespace MyWpfApp.ViewModels
             }
         }
 
+        private bool CanEditUser() => SelectedUser != null;
+
+        [RelayCommand]
         private void CancelEdit()
         {
             IsEditing = false;
             EditingUser = new User();
         }
 
-        private async Task SaveUserAsync(User user)
+        [RelayCommand]
+        private async Task SaveUser()
         {
+            if (EditingUser == null) return;
+
             try
             {
-                if (user.Id == 0)
+                if (EditingUser.Id == 0)
                 {
                     // Add new user
-                    var addedUser = await _dataService.AddUserAsync(user);
+                    var addedUser = await _dataService.AddUserAsync(EditingUser);
                     Users.Add(addedUser);
                 }
                 else
                 {
                     // Update existing user
-                    await _dataService.UpdateUserAsync(user);
-                    var existingUserIndex = Users.IndexOf(Users.FirstOrDefault(u => u.Id == user.Id));
+                    await _dataService.UpdateUserAsync(EditingUser);
+                    var existingUserIndex = Users.IndexOf(Users.FirstOrDefault(u => u.Id == EditingUser.Id));
                     if (existingUserIndex >= 0)
                     {
-                        Users[existingUserIndex] = user;
+                        Users[existingUserIndex] = EditingUser;
                     }
                 }
 
@@ -144,7 +116,8 @@ namespace MyWpfApp.ViewModels
             }
         }
 
-        private async Task DeleteUserAsync()
+        [RelayCommand(CanExecute = nameof(CanDeleteUser))]
+        private async Task DeleteUser()
         {
             if (SelectedUser == null) return;
 
@@ -164,6 +137,14 @@ namespace MyWpfApp.ViewModels
                     MessageBox.Show($"Error deleting user: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private bool CanDeleteUser() => SelectedUser != null;
+
+        partial void OnSelectedUserChanged(User value)
+        {
+            // When selection changes, update the editing user
+            EditingUser = value?.Clone();
         }
     }
 }

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:MyWpfApp.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:UserViewModel}"
         mc:Ignorable="d"
         Title="User Management" Height="600" Width="800"
         WindowStartupLocation="CenterOwner">
@@ -45,6 +46,7 @@
                 <Button Content="Add New" Command="{Binding AddUserCommand}" Width="80" Margin="0,0,5,0"/>
                 <Button Content="Edit" Command="{Binding EditUserCommand}" Width="80" Margin="5,0"/>
                 <Button Content="Delete" Command="{Binding DeleteUserCommand}" Width="80" Margin="5,0,0,0"/>
+                <Button Content="Refresh" Command="{Binding LoadUsersCommand}" Width="80" Margin="10,0,0,0"/>
             </StackPanel>
         </Grid>
 
@@ -53,6 +55,19 @@
 
         <!-- Right side - Edit Form -->
         <Grid Grid.Column="2" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}">
+            <!-- Alternative style for visibility
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            -->
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -75,7 +90,6 @@
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Save" 
                         Command="{Binding SaveUserCommand}" 
-                        CommandParameter="{Binding EditingUser}" 
                         Width="80" 
                         Margin="0,0,5,0"/>
                 <Button Content="Cancel" 

@@ -27,7 +27,7 @@
                        Margin="0,0,0,20"/>
         </StackPanel>
 
-        <UniformGrid Grid.Row="1" Columns="2" Margin="20,0">
+        <UniformGrid Grid.Row="1" Columns="2" Margin="50,0">
             <Button Content="User Management" 
                     Height="80" 
                     Margin="20"
