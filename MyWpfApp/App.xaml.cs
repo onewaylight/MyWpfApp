@@ -1,8 +1,6 @@
 ﻿using MyWpfApp.Services;
 using MyWpfApp.ViewModels;
 using MyWpfApp.Views;
-using System.Configuration;
-using System.Data;
 using System.Windows;
 
 namespace MyWpfApp
