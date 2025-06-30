@@ -1,2 +1,2 @@
-# This Project is Basic WPF MVVM Application use with CommunityToolkit.Mvvm
+# This Simple Mvvm Project for Study
 Study MVVM with CommunityToolkit.Mvvm
